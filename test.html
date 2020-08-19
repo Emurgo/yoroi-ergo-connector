@@ -1,0 +1,21 @@
+<body>
+    <script type="text/javascript">
+        if (ergo == undefined) {
+            alert("ergo not found");
+        } else {
+           //alert("ergo found!!!!")
+            ergo.rpc("test", [1, 2, 3]).then(function(result) {
+                alert("ergo.rpc(\"test\"(1, 2, 3)) = " + JSON.stringify(result));
+            })
+            ergo.request_read_access().then(function(result) {
+                alert("ergo.request_read_access() = " + result);
+            });
+            ergo.get_balance().then(function(result) {
+                alert("ergo.request_read_access() = " + result);
+            });
+            ergo.get_balance("ADA").then(function(result) {
+                alert("ergo.request_read_access(ADA) = " + result);
+            });
+        }
+    </script>
+</body>

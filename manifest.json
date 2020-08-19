@@ -1,0 +1,26 @@
+{
+    "name": "Yoroi-Ergo dApp Connector",
+    "version": "1.0",
+    "description": "Allows the Yoroi extension to interface with dApps following the Ergo EIP-0012 spec.",
+    "content_scripts": [
+        {
+            "matches": [
+              "file://*/*",
+              "http://*/*",
+              "https://*/*"
+            ],
+            "js": [
+              "inject.js"
+            ],
+            "run_at": "document_start",
+            "all_frames": true
+          }
+    ],
+    "manifest_version": 2,
+    "permissions": [
+        "activeTab"
+    ],
+    "web_accessible_resources": [
+        "inject.js"
+    ]
+}
