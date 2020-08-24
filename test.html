@@ -11,10 +11,15 @@
                 alert("ergo.request_read_access() = " + result);
             });
             ergo.get_balance().then(function(result) {
-                alert("ergo.request_read_access() = " + result);
+                alert("ergo.get_balance() = " + result);
             });
             ergo.get_balance("ADA").then(function(result) {
-                alert("ergo.request_read_access(ADA) = " + result);
+                alert("ergo.get_balance(ADA) = " + result);
+            });
+            ergo.sign_tx({}).then(function(result) {
+                alert("ergo.sign_tx() = " + result);
+            }).catch(function(err) {
+                alert("ergo.sign_tx() produced an error: " + JSON.stringify(err));
             });
         }
     </script>

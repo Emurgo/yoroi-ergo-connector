@@ -4,20 +4,34 @@ function handler(message, sender, sendResponse) {
         if (message.type == "connector_rpc_request") {
             switch (message.function) {
                 case "request_read_access":
-                    sendResponse(true);
+                    sendResponse({
+                        ok: true
+                    });
                     break;
                 case "get_balance":
                     if (message.params[0] == "ERG") {
-                        sendResponse(100);
+                        sendResponse({
+                            ok: 100
+                        });
                     } else {
-                        sendResponse(5);
+                        sendResponse({
+                            ok: 5
+                        });
                     }
                     break;
+                case "sign_tx":
+                    sendResponse({
+                        err: {
+                            code: 2,
+                            info: "User rejected",
+                        }
+                    });
                 default:
-                    sendResponse("unknown RPC: " + message.function + "(" + message.params + ")")
+                    sendResponse({
+                        err: "unknown RPC: " + message.function + "(" + message.params + ")"
+                    })
                     break;
             }
-            sendResponse("a response from the mock Yoroi extension!")
         }
     } else {
         alert("received message \"" + message + "\" from other sender: " + sender.id);

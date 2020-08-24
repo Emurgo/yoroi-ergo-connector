@@ -24,6 +24,10 @@ class API {
     get_balance(token_id = 'ERG') {
         return this.rpc("get_balance", [token_id]);
     }
+
+    sign_tx(tx) {
+        return this.rpc("sign_tx", [tx]);
+    }
 }
 
 const ergo = Object.freeze(new API());
@@ -32,8 +36,12 @@ window.addEventListener("message", function(event) {
     if (event.data.type == "connector_rpc_response") {
         console.log("page received from connector: " + JSON.stringify(event.data) + " with source = " + event.source + " and origin = " + event.origin);
         const rpcPromise = rpcResolver.get(event.data.uid);
-        if (rpcPromise != undefined) {
-            rpcPromise.resolve(event.data.return);
+        if (rpcPromise !== undefined) {
+            if (event.data.return.err !== undefined) {
+                rpcPromise.reject(event.data.return.err);
+            } else {
+                rpcPromise.resolve(event.data.return.ok);
+            }
         }
     }
 });
