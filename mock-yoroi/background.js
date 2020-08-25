@@ -26,6 +26,10 @@ function handler(message, sender, sendResponse) {
                             info: "User rejected",
                         }
                     });
+                case "ping":
+                    sendResponse({
+                        ok: true,
+                    });
                 default:
                     sendResponse({
                         err: "unknown RPC: " + message.function + "(" + message.params + ")"

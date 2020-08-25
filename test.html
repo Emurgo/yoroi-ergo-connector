@@ -8,6 +8,9 @@
                 if (!access_granted) {
                     alert("ergo access denied");
                 } else {
+                    window.addEventListener("ergo_wallet_disconnected", function(event) {
+                        alert("wallet disconnected");
+                    });
                     _ergo_rpc_call("test", [1, 2, 3]).catch(function(result) {
                         alert("_ergo_rpc_call(\"test\"(1, 2, 3)) = " + JSON.stringify(result));
                     });

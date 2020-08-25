@@ -3,6 +3,7 @@ const initialInject = `
 
 var rpcUid = 0;
 var rpcResolver = new Map();
+var timeout = 0;
 
 function _ergo_rpc_call(func, params) {
     return new Promise(function(resolve, reject) {
@@ -36,6 +37,26 @@ window.addEventListener("message", function(event) {
         }
     }
 });
+
+// disconnect detector
+setInterval(function() {
+    if (timeout == 20) {
+        window.dispatchEvent(new Event("ergo_wallet_disconnected"));
+    }
+    if (timeout == 25) {
+        rpcResolver.forEach(function(rpc) {
+            rpc.reject("timed out");
+        });
+    }
+    timeout += 1;
+}, 1000);
+
+// ping sender
+setInterval(function() {
+    _ergo_rpc_call("ping", []).then(function() {
+        timeout = 0;
+    });
+}, 10000);
 `
 
 // client-facing ergo object API
