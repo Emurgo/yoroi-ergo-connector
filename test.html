@@ -1,25 +1,28 @@
 <body>
     <script type="text/javascript">
-        if (ergo == undefined) {
+        if (ergo_request_read_access == undefined) {
             alert("ergo not found");
         } else {
-           //alert("ergo found!!!!")
-            ergo.rpc("test", [1, 2, 3]).then(function(result) {
-                alert("ergo.rpc(\"test\"(1, 2, 3)) = " + JSON.stringify(result));
-            })
-            ergo.request_read_access().then(function(result) {
-                alert("ergo.request_read_access() = " + result);
-            });
-            ergo.get_balance().then(function(result) {
-                alert("ergo.get_balance() = " + result);
-            });
-            ergo.get_balance("ADA").then(function(result) {
-                alert("ergo.get_balance(ADA) = " + result);
-            });
-            ergo.sign_tx({}).then(function(result) {
-                alert("ergo.sign_tx() = " + result);
-            }).catch(function(err) {
-                alert("ergo.sign_tx() produced an error: " + JSON.stringify(err));
+            //alert("ergo found!!!!")
+            ergo_request_read_access().then(function(access_granted) {
+                if (!access_granted) {
+                    alert("ergo access denied");
+                } else {
+                    _ergo_rpc_call("test", [1, 2, 3]).catch(function(result) {
+                        alert("_ergo_rpc_call(\"test\"(1, 2, 3)) = " + JSON.stringify(result));
+                    });
+                    ergo.get_balance().then(function(result) {
+                        alert("ergo.get_balance() = " + result);
+                    });
+                    ergo.get_balance("ADA").then(function(result) {
+                        alert("ergo.get_balance(ADA) = " + result);
+                    });
+                    ergo.sign_tx({}).then(function(result) {
+                        alert("ergo.sign_tx() = " + result);
+                    }).catch(function(err) {
+                        alert("ergo.sign_tx() produced an error: " + JSON.stringify(err));
+                    });
+                }
             });
         }
     </script>

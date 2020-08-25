@@ -3,7 +3,7 @@ function handler(message, sender, sendResponse) {
         console.log("mock-yoroi received: " + JSON.stringify(message))
         if (message.type == "connector_rpc_request") {
             switch (message.function) {
-                case "request_read_access":
+                case "ergo_request_read_access":
                     sendResponse({
                         ok: true
                     });
