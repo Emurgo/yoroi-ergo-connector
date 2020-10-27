@@ -83,25 +83,33 @@ function injectIntoPage(code) {
         container.insertBefore(scriptTag, container.children[0]);
         container.removeChild(scriptTag);
         console.log("injection succeeded");
+        return true;
     } catch (e) {
         console.log("injection failed: " + e);
+        return false;
     }
 }
 
 injectIntoPage(initialInject);
 
 window.addEventListener("message", function(event) {
-    if (event.data.type == "connector_rpc_request") {
-        console.log("connector received from page: " + JSON.stringify(event.data) + " with source = " + event.source + " and origin = " + event.origin);
+    function sendRpcToYoroi() {
         chrome.runtime.sendMessage(
             "eegbdfmlofnpgiiilnlboaamccblbobe",
             event.data,
             {},
             function(response) {
-                console.log("connector received from Yoroi: " + JSON.stringify(response));
                 // inject full API here
-                if (event.data.function == "ergo_request_read_access" && response.ok === true) {
-                    injectIntoPage(apiInject);
+                if (response.ok === true) {
+                    if (injectIntoPage(apiInject)) {
+                        chrome.runtime.sendMessage(
+                            {type:"init_page_action"});
+                    } else {
+                        alert("failed to inject Ergo API");
+                        // TODO: return an error instead here if injection fails?
+                    }
+                } else {
+                    // ???
                 }
                 window.postMessage({
                     type: "connector_rpc_response",
@@ -109,5 +117,39 @@ window.addEventListener("message", function(event) {
                     return: response
                 }, location.origin);
             });
+    }
+    
+    if (event.data.type == "connector_rpc_request") {
+        console.log("connector received from page: " + JSON.stringify(event.data) + " with source = " + event.source + " and origin = " + event.origin);
+        if (event.data.function == "ergo_request_read_access") {
+            chrome.storage.local.get("whitelist", function(result) {
+                alert(JSON.stringify(result));
+                let whitelist = Object.keys(result).length === 0 ? [] : result.whitelist;
+                if (!whitelist.includes(location.hostname)) {
+                    if (confirm(`Allow access of ${location.hostname} to Ergo-Yoroi connector?`)) {
+                        if (confirm(`Save ${location.hostname} to whitelist?`)) {
+                            whitelist.push(location.hostname);
+                            chrome.storage.local.set({whitelist:whitelist}, function() {
+                                alert("value not set?");
+                                alert(value);
+                            });
+                        }
+                        sendRpcToYoroi();
+                    } else {
+                        // user refused - skip communication with Yoroi
+                        window.postMessage({
+                            type: "connector_rpc_response",
+                            uid: event.data.uid,
+                            return: {ok: false}
+                        }, location.origin);
+                    }
+                } else {
+                    // already in whitelist
+                    sendRpcToYoroi();
+                }
+            });
+        } else {
+            sendRpcToYoroi();
+        }
     }
 });
