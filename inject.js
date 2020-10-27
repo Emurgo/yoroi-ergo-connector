@@ -93,23 +93,25 @@ function injectIntoPage(code) {
 injectIntoPage(initialInject);
 
 window.addEventListener("message", function(event) {
-    function sendRpcToYoroi() {
+    function sendRpcToYoroi(injectApiOnSuccess) {
         chrome.runtime.sendMessage(
             "eegbdfmlofnpgiiilnlboaamccblbobe",
             event.data,
             {},
             function(response) {
-                // inject full API here
-                if (response.ok === true) {
-                    if (injectIntoPage(apiInject)) {
-                        chrome.runtime.sendMessage(
-                            {type:"init_page_action"});
+                if (injectApiOnSuccess) {
+                    // inject full API here
+                    if (response.ok === true) {
+                        if (injectIntoPage(apiInject)) {
+                            chrome.runtime.sendMessage(
+                                {type:"init_page_action"});
+                        } else {
+                            alert("failed to inject Ergo API");
+                            // TODO: return an error instead here if injection fails?
+                        }
                     } else {
-                        alert("failed to inject Ergo API");
-                        // TODO: return an error instead here if injection fails?
+                        // ???
                     }
-                } else {
-                    // ???
                 }
                 window.postMessage({
                     type: "connector_rpc_response",
@@ -129,12 +131,9 @@ window.addEventListener("message", function(event) {
                     if (confirm(`Allow access of ${location.hostname} to Ergo-Yoroi connector?`)) {
                         if (confirm(`Save ${location.hostname} to whitelist?`)) {
                             whitelist.push(location.hostname);
-                            chrome.storage.local.set({whitelist:whitelist}, function() {
-                                alert("value not set?");
-                                alert(value);
-                            });
+                            chrome.storage.local.set({whitelist:whitelist});
                         }
-                        sendRpcToYoroi();
+                        sendRpcToYoroi(true);
                     } else {
                         // user refused - skip communication with Yoroi
                         window.postMessage({
@@ -145,11 +144,11 @@ window.addEventListener("message", function(event) {
                     }
                 } else {
                     // already in whitelist
-                    sendRpcToYoroi();
+                    sendRpcToYoroi(true);
                 }
             });
         } else {
-            sendRpcToYoroi();
+            sendRpcToYoroi(false);
         }
     }
 });
